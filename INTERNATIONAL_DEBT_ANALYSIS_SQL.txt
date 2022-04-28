@@ -1,0 +1,238 @@
+
+
+ The World Bank's international debt data
+
+It's not that we humans only take debts to manage our necessities. A country may also
+take debt to manage its economy. For example, infrastructure spending is one costly
+ingredient required for a country's citizens to lead comfortable lives. The World Bank is
+the organization that provides debt to countries.
+In this project, you are going to analyze international debt data collected by The World
+Bank. The dataset contains information about the amount of debt (in USD) owed by
+developing countries across several categories. You are going to find the answers to
+questions like:
+ What is the total amount of debt that is owed by the countries listed in the
+dataset?
+ Which country owns the maximum amount of debt and what does that amount
+look like?
+ What is the average amount of debt owed by countries across different debt
+indicators?
+The data used in this project is provided by The World Bank. It contains both national
+and regional debt statistics for several countries across the globe as recorded from 1970
+to 2015.
+
+
+1-The World Bank's international debt data
+
+         select * from new_data;
+OUTPUT
+
+Country Name	Country Code	Series Name	Series Code	Total_debt
+Afghanistan	AFG	External debt stocks, long-term private sector (DOD, current US$)	DT.DOD.PRVS.CD	110584000
+Afghanistan	AFG	External debt stocks, private nonguaranteed (PNG) (DOD, current US$)	DT.DOD.DPNG.CD	110584000
+Afghanistan	AFG	External debt stocks, variable rate (DOD, current US$)	DT.DOD.VTOT.CD	110584000
+Afghanistan	AFG	PNG, commercial banks and other creditors (DOD, current US$)	DT.DOD.PNGC.CD	110584000
+Afghanistan	AFG	Present value of external debt (current US$)	DT.DOD.PVLX.CD	2000000000
+Albania	ALB	OPS, commercial banks (DOD, current US$)	DT.DOD.PCBK.OPS.CD	87005272.2
+Albania	ALB	OPS, commercial banks (NFL, current US$)	DT.NFL.PCBK.OPS.CD	11521000
+Albania	ALB	OPS, commercial banks (NTR, current US$)	DT.NTR.PCBK.OPS.CD	9963000
+Albania	ALB	Present value of external debt (current US$)	DT.DOD.PVLX.CD	5500000000
+Algeria	DZA	Present value of external debt (current US$)	DT.DOD.PVLX.CD	1100000000
+
+
+
+2-Finding the number of distinct countries 
+    SELECT 
+    COUNT(DISTINCT(`Country Name`)) AS total_distinct_countries
+    FROM new_data;
+
+OUTPUT
+total_distinct_countries
+124
+
+3-Finding out the distinct debt indicators
+    SELECT 
+    DISTINCT(`Series Code`) as distinct_debt_indicators
+    FROM new_data
+    GROUP BY distinct_debt_indicators
+    ORDER BY distinct_debt_indicators;
+OUTPUT
+# distinct_debt_indicators
+'BM.GSR.TOTL.CD'
+'BN.CAB.XOKA.CD'
+'BX.GRT.EXTA.CD.DT'
+'BX.GRT.TECH.CD.DT'
+'BX.GSR.TOTL.CD'
+'BX.KLT.DINV.CD.DT'
+'BX.KLT.DREM.CD.DT'
+'BX.PEF.TOTL.CD.DT'
+'BX.TRF.PWKR.CD.DT'
+'DT.AMT.BLAT.CB.CD'
+
+4-Totaling the amount of debt owed by the countries
+
+    SELECT 
+    ROUND(SUM(total_debt)/1000000, 2) as total_debt
+    FROM new_data;
+OUTPUT
+# total_debt
+'24952872.72'
+
+5-Country with the highest debt
+
+     SELECT 
+    `Country Name`, 
+     ROUND(SUM(total_debt)/1000000, 2) as total_debt
+     FROM new_data
+     GROUP BY `Country Name`
+     ORDER BY total_debt DESC 
+     LIMIT 1;
+
+# Country Name, total_debt
+'China', '5172875.99'
+
+6-Average amount of debt across indicators
+
+     SELECT 
+    `Series Code` AS debt_indicator,
+     ROUND(AVG(total_debt)/1000000,2) as average_debt,
+    `Series Name`
+     FROM new_data
+     GROUP BY debt_indicator,`Series Name`
+     ORDER BY average_debt DESC
+     LIMIT 10;
+
+# debt_indicator, average_debt, Series Name
+'DT.DOD.PVLX.CD', '26455.1', 'Present value of external debt (current US$)'
+'BM.GSR.TOTL.CD', '25021.73', 'Imports of goods, services and primary income (current US$)'
+'BX.GSR.TOTL.CD', '25005.9', 'Exports of goods, services and primary income (current US$)'
+'NY.GNP.MKTP.CD', '17007.77', 'GNI (current US$)'
+'FI.RES.TOTL.CD', '9080.66', 'Total reserves (includes gold, current US$)'
+'BN.CAB.XOKA.CD', '9061.82', 'Current account balance (current US$)'
+'DT.DOD.DECT.CD', '7760.57', 'External debt stocks, total (DOD, current US$)'
+'DT.DOD.DLXF.CD', '5515.87', 'External debt stocks, long-term (DOD, current US$)'
+'DT.DOD.DPNG.CD', '4477.46', 'External debt stocks, private nonguaranteed (PNG) (DOD, current US$)'
+'DT.DOD.PNGC.CD', '4377.32', 'PNG, commercial banks and other creditors (DOD, current US$)'
+
+
+
+7-The highest amount of principal repayments
+
+    SELECT *
+    FROM new_data
+    WHERE  `Series Code` = 'DT.AMT.DLXF.CD'
+    GROUP BY `Country Name`; 
+
+# Country Name, Country Code, Series Name, Series Code, Total_debt
+'Algeria', 'DZA', 'Principal repayments on external debt, long-term (AMT, current US$)', 'DT.AMT.DLXF.CD', '138428037'
+'Argentina', 'ARG', 'Principal repayments on external debt, long-term (AMT, current US$)', 'DT.AMT.DLXF.CD', '768447753'
+'Benin', 'BEN', 'Principal repayments on external debt, long-term (AMT, current US$)', 'DT.AMT.DLXF.CD', '2400881'
+'Bolivia', 'BOL', 'Principal repayments on external debt, long-term (AMT, current US$)', 'DT.AMT.DLXF.CD', '34238850'
+'Botswana', 'BWA', 'Principal repayments on external debt, long-term (AMT, current US$)', 'DT.AMT.DLXF.CD', '392492'
+'Brazil', 'BRA', 'Principal repayments on external debt, long-term (AMT, current US$)', 'DT.AMT.DLXF.CD', '769808196'
+'Burkina Faso', 'BFA', 'Principal repayments on external debt, long-term (AMT, current US$)', 'DT.AMT.DLXF.CD', '1511702'
+'Burundi', 'BDI', 'Principal repayments on external debt, long-term (AMT, current US$)', 'DT.AMT.DLXF.CD', '1620936'
+'Cameroon', 'CMR', 'Principal repayments on external debt, long-term (AMT, current US$)', 'DT.AMT.DLXF.CD', '11432273'
+'Central African Republic', 'CAF', 'Principal repayments on external debt, long-term (AMT, current US$)', 'DT.AMT.DLXF.CD', '1114754'
+
+8-The most common debt indicator
+
+     SELECT 
+    `Series Name`,
+     COUNT(`Series Code`) as indicator_count
+     FROM NEW_DATA
+     GROUP BY `Series Code`, `Series Name`
+     ORDER BY indicator_count DESC
+     LIMIT 20;
+
+# Series Name, indicator_count
+'Commitments, official creditors (COM, current US$)', '124'
+'External debt stocks, total (DOD, current US$)', '124'
+'External debt stocks, variable rate (DOD, current US$)', '124'
+'External debt stocks, short-term (DOD, current US$)', '124'
+'Present value of external debt (current US$)', '124'
+'External debt stocks, public sector (PPG) (DOD, current US$)', '124'
+'PS, bilateral (AMT, current US$)', '124'
+'PPG, bilateral (TDS, current US$)', '124'
+'External debt stocks, public and publicly guaranteed (PPG) (DOD, current US$)', '124'
+'PPG, bilateral (INT, current US$)', '124'
+'External debt stocks, long-term public sector (DOD, current US$)', '124'
+'External debt stocks, long-term (DOD, current US$)', '124'
+'PPG, bilateral (AMT, current US$)', '124'
+'External debt stocks, general government sector (PPG) (DOD, current US$)', '124'
+'PPG, official creditors (DIS, current US$)', '124'
+'Disbursements on external debt, public and publicly guaranteed (PPG) (DIS, current US$)', '124'
+'Disbursements on external debt, long-term (DIS, current US$)', '124'
+'PS, official creditors (AMT, current US$)', '124'
+'PPG, bilateral (DIS, current US$)', '124'
+'PPG, multilateral (DIS, current US$)', '124'
+
+9- Other viable debt issues and conclusion
+
+SELECT
+    `Country Name`,
+    `Series Name`,
+    MAX(TOTAL_debt) as maximum_debt
+FROM NEW_DATA
+GROUP BY `Country Name`
+ORDER BY maximum_debt DESC
+LIMIT 20;
+
+# Country Name, Series Name, maximum_debt
+'China', 'Present value of external debt (current US$)', '821514000000'
+'Russian Federation', 'Present value of external debt (current US$)', '745491000000'
+'Mexico', 'Present value of external debt (current US$)', '300000000000'
+'South Asia', 'Present value of external debt (current US$)', '258772000000'
+'Indonesia', 'Present value of external debt (current US$)', '240000000000'
+'India', 'Present value of external debt (current US$)', '194154000000'
+'Brazil', 'Present value of external debt (current US$)', '170000000000'
+'Thailand', 'Present value of external debt (current US$)', '143582000000'
+'Turkey', 'CB, multilateral (AMT, current US$)', '132890000000'
+'Argentina', 'Present value of external debt (current US$)', '100000000000'
+'Romania', 'GG, multilateral concessional (DOD, current US$)', '95560240107'
+'Egypt, Arab Rep.', 'Present value of external debt (current US$)', '93000000000'
+'Colombia', 'Present value of external debt (current US$)', '86000000000'
+'Ukraine', 'GG, multilateral concessional (DOD, current US$)', '85072910004'
+'Pakistan', 'Present value of external debt (current US$)', '78000000000'
+'South Africa', 'Net financial flows, others (NFL, current US$)', '72730057771'
+'Bangladesh', 'OPS, bilateral concessional (DOD, current US$)', '72520666667'
+'Nigeria', 'Present value of external debt (current US$)', '57149176339'
+'Venezuela, RB', 'Present value of external debt (current US$)', '57000000000'
+'Vietnam', 'CB, bilateral concessional (AMT, current US$)', '56575238837'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
